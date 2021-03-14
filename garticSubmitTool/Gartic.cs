@@ -96,6 +96,8 @@ namespace garticSubmitTool
 				removeStr += "\"" + removeWords[i].word + "\"";
             }
 
+			string str = "{\"language\":16,\"subject\":30,\"added\":[" + addStr + "],\"removed\":[" + removeStr + "]}";
+
 			HttpHelper helper = new HttpHelper();
 			HttpItem item = new HttpItem
 			{
@@ -109,7 +111,9 @@ namespace garticSubmitTool
 				Referer = "https://gartic.io/theme",
 				Cookie = Cookie,
 				WebProxy = System.Net.WebProxy.GetDefaultProxy(),
-				Postdata = "{\"language\":16,\"subject\":30,\"added\":[" + addStr + "],\"removed\":[" + removeStr +"]}",
+				PostDataType = CsharpHttpHelper.Enum.PostDataType.Byte,
+				PostEncoding = Encoding.UTF8,
+				PostdataByte = Encoding.UTF8.GetBytes(str)
 			};
 			item.Header["sec-ch-ua"] = "\"Chromium\";v=\"88\",\"Google Chrome\";v=\"88\", \";Not A Brand\";v=\"99\"";
 			item.Header["DNT"] = "1";
