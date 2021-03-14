@@ -17,13 +17,44 @@ namespace garticSubmitTool
 			Cookie = cookie;
         }
 
+		public bool IsLogin()
+        {
+			HttpHelper helper = new HttpHelper();
+			HttpItem item = new HttpItem
+			{
+				URL = "https://gartic.io/",
+				Method = "GET",
+				Host = "gartic.io",
+				KeepAlive = true,
+				UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.82 Safari/537.36",
+				Accept = "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+				Cookie = Cookie,
+				WebProxy = System.Net.WebProxy.GetDefaultProxy(),
+			};
+			item.Header["Cache-Control"] = "max-age=0";
+			item.Header["sec-ch-ua"] = "\"Chromium\";v=\"88\" \"Google Chrome\";v=\"88\", \"; Not A Brand\";v=\"99\"";
+			item.Header["sec-ch-ua-mobile"] = "?0";
+			item.Header["DNT"] = "1";
+			item.Header["Upgrade-Insecure-Requests"] = "1";
+			item.Header["Sec-Fetch-Site"] = "same-origin";
+			item.Header["Sec-Fetch-Mode"] = "navigate";
+			item.Header["Sec-Fetch-User"] = "?1";
+			item.Header["Sec-Fetch-Dest"] = "document";
+			item.Header["Accept-Encoding"] = "gzip, deflate, br";
+			item.Header["Accept-Language"] = "zh-CN,zh;q=0.9";
+
+			HttpResult result = helper.GetHtml(item);
+
+			return result.Html.Contains("href=\"/logout?home\"");
+		}
+
 		/// <summary>
 		/// 获取当前个人自定义词库列表
 		/// </summary>
 		/// <param name="subject"></param>
 		/// <param name="lanauage"></param>
 		/// <returns></returns>
-        public List<WordEntity> GetCurrentLisy(int subject = 30,int lanauage = 16)
+        public List<WordEntity> GetCurrentList(int subject = 30,int lanauage = 16)
         {
 			HttpHelper helper = new HttpHelper();
 			HttpItem item = new HttpItem

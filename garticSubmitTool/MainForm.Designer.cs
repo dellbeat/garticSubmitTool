@@ -29,6 +29,7 @@ namespace garticSubmitTool
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.label1 = new System.Windows.Forms.Label();
             this.JsonText = new System.Windows.Forms.TextBox();
             this.ApplyBtn = new System.Windows.Forms.Button();
@@ -133,8 +134,10 @@ namespace garticSubmitTool
             this.Controls.Add(this.ApplyBtn);
             this.Controls.Add(this.JsonText);
             this.Controls.Add(this.label1);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
             this.Name = "MainForm";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Gartic.io 自定义词库导入工具";
             this.ResumeLayout(false);
             this.PerformLayout();
