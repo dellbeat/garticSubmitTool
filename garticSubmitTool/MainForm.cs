@@ -6,6 +6,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows.Forms;
 
@@ -87,7 +88,7 @@ namespace garticSubmitTool
         private void AddListBtn_Click(object sender, EventArgs e)
         {
             OpenFileDialog dialog = new OpenFileDialog();
-            dialog.Filter = "文本文件|*.txt";
+            dialog.Filter = "文本文件|*.txt|逗号分隔符文件|*.csv";
             dialog.CheckFileExists = true;
             dialog.CheckPathExists = true;
 
@@ -104,13 +105,29 @@ namespace garticSubmitTool
 
         private void UpdateWordsList(object path)
         {
-            FileStream fs = new FileStream(path.ToString(), FileMode.Open);
-            StreamReader sr = new StreamReader(fs, Encoding.UTF8);
-            string fullText = sr.ReadToEnd();
-            sr.Close();
-            fs.Close();
+            string fullText = "";
 
-            string[] array = fullText.Replace("\r\n", "\t").Split('\t');
+            try
+            {
+                FileStream fs = new FileStream(path.ToString(), FileMode.Open);
+                StreamReader sr = new StreamReader(fs, Encoding.UTF8);
+                fullText = sr.ReadToEnd();
+                sr.Close();
+                fs.Close();
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show("遇到错误...请稍后再试！\r\n错误信息:\r\n" + ex.Message);
+                AddListBtn.Enabled = true;
+                return;
+            }
+
+            if (fullText.Substring(fullText.Length - 2, 2) == "\r\n")
+            {
+                fullText = fullText.Remove(fullText.Length - 2, 2);
+            }
+            
+            string[] array = fullText.Replace("\r\n", "\t").Split('\t');//EXCEL生成的CSV文件会多一个换行符号
 
             List<WordEntity> words = gartic.GetCurrentList();
             int Count = words.Count;
@@ -118,18 +135,59 @@ namespace garticSubmitTool
             if (array.Length + Count < 50)
             {
                 MessageBox.Show("请保证导入词库量和当前已存在词库单词总和大于等于50");
+                AddListBtn.Enabled = true;
                 return;
             }
 
-            List<WordEntity> entities = new List<WordEntity>();
-            foreach (string str in array)
+            Regex NonCommaReg = new Regex(@"[^,\r\n]+");
+            Regex CommaReg = new Regex(@"[^\r\n]+,[^\r\n]+");
+
+            MatchCollection NonCommaCol = NonCommaReg.Matches(fullText);
+            MatchCollection CommaCol = CommaReg.Matches(fullText);
+
+
+            int ImportModeCode = 0;
+            if (NonCommaCol.Count != array.Length && CommaCol.Count != array.Length)
             {
-                WordEntity entity = new WordEntity() { word = str, code = 0 };
-                if (words.Contains(entity))
+                MessageBox.Show("格式识别出现问题，请检查后再试！");
+                AddListBtn.Enabled = true;
+                return;
+            }
+
+            if (NonCommaCol.Count == array.Length)
+            {
+                ImportModeCode = 1;
+            }
+            else
+            {
+                ImportModeCode = 2;
+            }
+
+            List<WordEntity> entities = new List<WordEntity>();
+            if(ImportModeCode == 1)
+            {
+                foreach (string str in array)
                 {
-                    continue;
+                    WordEntity entity = new WordEntity() { word = str, code = 0 };
+                    if (words.Contains(entity))
+                    {
+                        continue;
+                    }
+                    entities.Add(entity);
                 }
-                entities.Add(entity);
+            }
+            else
+            {
+                foreach(string str in array)
+                {
+                    string[] strArr = str.Split(',');
+                    if(!int.TryParse(strArr[1],out int code))
+                    {
+                        continue;
+                    }
+                    WordEntity entity = new WordEntity() { word = strArr[0], code = code };
+                    entities.Add(entity);
+                }
             }
 
             bool statu = gartic.UpdateWords(entities, null);

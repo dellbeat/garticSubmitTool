@@ -104,7 +104,7 @@ namespace garticSubmitTool
             // 
             // ClearListBtn
             // 
-            this.ClearListBtn.Location = new System.Drawing.Point(584, 72);
+            this.ClearListBtn.Location = new System.Drawing.Point(584, 126);
             this.ClearListBtn.Name = "ClearListBtn";
             this.ClearListBtn.Size = new System.Drawing.Size(75, 23);
             this.ClearListBtn.TabIndex = 5;
