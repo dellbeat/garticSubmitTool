@@ -39,6 +39,17 @@ namespace garticSubmitTool
         public string word { get; set; }
 
         public int code { get; set; }
+
+        public override bool Equals(object obj)
+        {
+            if (obj == null) return false;
+
+            WordEntity entiy = obj as WordEntity;
+
+            return word == entiy.word;
+        }
     }
+
+
 
 }

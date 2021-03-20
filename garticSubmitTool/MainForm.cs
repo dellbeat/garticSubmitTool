@@ -124,7 +124,12 @@ namespace garticSubmitTool
             List<WordEntity> entities = new List<WordEntity>();
             foreach (string str in array)
             {
-                entities.Add(new WordEntity() { word = str, code = 0 });
+                WordEntity entity = new WordEntity() { word = str, code = 0 };
+                if (words.Contains(entity))
+                {
+                    continue;
+                }
+                entities.Add(entity);
             }
 
             bool statu = gartic.UpdateWords(entities, null);
