@@ -109,8 +109,9 @@ namespace garticSubmitTool
 
             try
             {
+                Encoding encoding = EncodingType.GetType(path.ToString());
                 FileStream fs = new FileStream(path.ToString(), FileMode.Open);
-                StreamReader sr = new StreamReader(fs, Encoding.UTF8);
+                StreamReader sr = new StreamReader(fs, encoding);
                 fullText = sr.ReadToEnd();
                 sr.Close();
                 fs.Close();
