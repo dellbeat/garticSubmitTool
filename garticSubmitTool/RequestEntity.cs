@@ -25,12 +25,6 @@ namespace garticSubmitTool
         public string[] removed { get; set; }
     }
 
-
-    public class ResponseEntity
-    {
-        public object[][] Array { get; set; }
-    }
-
     /// <summary>
     /// 单词实体
     /// </summary>
