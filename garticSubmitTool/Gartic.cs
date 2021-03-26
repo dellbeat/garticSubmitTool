@@ -5,12 +5,17 @@ using System.Linq;
 using System.Text;
 using Newtonsoft.Json;
 using System.Text.RegularExpressions;
+using System.Drawing;
 
 namespace garticSubmitTool
 {
     public class Gartic
     {
         private string Cookie { get; set; }
+
+		public string NickName { get; private set; }
+
+		public Image UserImage { get; private set; }
 
 		public Gartic(string cookie)
         {
@@ -45,7 +50,50 @@ namespace garticSubmitTool
 
 			HttpResult result = helper.GetHtml(item);
 
+			bool loginStatu = result.Html.Contains("href=\"/logout?home\"");
+
+            if (loginStatu)
+            {
+				Regex nickReg = new Regex(@"(?<=""nome"":"")[^""]+");
+				Regex avartaReg = new Regex(@"(?<=""avatar"":"")[^""]+");
+				NickName = nickReg.Match(result.Html).Value;
+				string url = avartaReg.Match(result.Html).Value;
+				Image img = GetUserImg(url);
+                if (img == null)
+                {
+					UserImage = Properties.Resources.DefaultImage;
+                }
+                else
+                {
+					UserImage = img;
+                }
+
+            }
+            else
+            {
+				UserImage = Properties.Resources.DefaultImage;
+				NickName = "未登录";
+            }
+
 			return result.Html.Contains("href=\"/logout?home\"");
+		}
+
+		private Image GetUserImg(string imgUrl)
+        {
+			Regex HostReg = new Regex("(?<=http(s){0,1}://)[^/]+");
+
+			HttpHelper helper = new HttpHelper();
+			HttpItem item = new HttpItem
+			{
+				URL = imgUrl,
+				Method = "GET",
+				Host = HostReg.Match(imgUrl).Value,
+				UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.90 Safari/537.36",
+				Accept = "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+				WebProxy = System.Net.WebProxy.GetDefaultProxy(),
+			};
+
+			return helper.GetImage(item);
 		}
 
 		/// <summary>

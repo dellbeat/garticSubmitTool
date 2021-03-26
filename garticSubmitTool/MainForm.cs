@@ -36,6 +36,8 @@ namespace garticSubmitTool
         {
             gartic = new Gartic(CookieStr.ToString());
             bool statu = gartic.IsLogin();
+            UserImagePic.Image = gartic.UserImage;
+            UserNameLabel.Text = gartic.NickName;
             MessageBox.Show("Cookie已应用，当前登录状态为" + (statu ? "已登录" : "未登录"));
             ApplyBtn.Enabled = true;
         }

@@ -39,12 +39,18 @@ namespace garticSubmitTool
             this.columnHeader2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.ClearListBtn = new System.Windows.Forms.Button();
             this.AddListBtn = new System.Windows.Forms.Button();
+            this.UserImagePic = new System.Windows.Forms.PictureBox();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.label2 = new System.Windows.Forms.Label();
+            this.UserNameLabel = new System.Windows.Forms.Label();
+            ((System.ComponentModel.ISupportInitialize)(this.UserImagePic)).BeginInit();
+            this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(12, 9);
+            this.label1.Location = new System.Drawing.Point(12, 203);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(161, 12);
             this.label1.TabIndex = 0;
@@ -52,11 +58,11 @@ namespace garticSubmitTool
             // 
             // JsonText
             // 
-            this.JsonText.Location = new System.Drawing.Point(12, 34);
+            this.JsonText.Location = new System.Drawing.Point(12, 231);
             this.JsonText.Multiline = true;
             this.JsonText.Name = "JsonText";
             this.JsonText.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.JsonText.Size = new System.Drawing.Size(298, 358);
+            this.JsonText.Size = new System.Drawing.Size(298, 161);
             this.JsonText.TabIndex = 1;
             // 
             // ApplyBtn
@@ -122,11 +128,52 @@ namespace garticSubmitTool
             this.AddListBtn.UseVisualStyleBackColor = true;
             this.AddListBtn.Click += new System.EventHandler(this.AddListBtn_Click);
             // 
+            // UserImagePic
+            // 
+            this.UserImagePic.Image = global::garticSubmitTool.Properties.Resources.DefaultImage;
+            this.UserImagePic.Location = new System.Drawing.Point(43, 20);
+            this.UserImagePic.Name = "UserImagePic";
+            this.UserImagePic.Size = new System.Drawing.Size(100, 100);
+            this.UserImagePic.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.UserImagePic.TabIndex = 7;
+            this.UserImagePic.TabStop = false;
+            // 
+            // groupBox1
+            // 
+            this.groupBox1.Controls.Add(this.UserNameLabel);
+            this.groupBox1.Controls.Add(this.label2);
+            this.groupBox1.Controls.Add(this.UserImagePic);
+            this.groupBox1.Location = new System.Drawing.Point(14, 13);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size(200, 163);
+            this.groupBox1.TabIndex = 8;
+            this.groupBox1.TabStop = false;
+            this.groupBox1.Text = "用户信息";
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(18, 132);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(29, 12);
+            this.label2.TabIndex = 8;
+            this.label2.Text = "昵称";
+            // 
+            // UserNameLabel
+            // 
+            this.UserNameLabel.AutoSize = true;
+            this.UserNameLabel.Location = new System.Drawing.Point(53, 132);
+            this.UserNameLabel.Name = "UserNameLabel";
+            this.UserNameLabel.Size = new System.Drawing.Size(41, 12);
+            this.UserNameLabel.TabIndex = 9;
+            this.UserNameLabel.Text = "未登录";
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(734, 450);
+            this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.AddListBtn);
             this.Controls.Add(this.ClearListBtn);
             this.Controls.Add(this.WordLV);
@@ -139,6 +186,9 @@ namespace garticSubmitTool
             this.Name = "MainForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Gartic.io 自定义词库导入工具";
+            ((System.ComponentModel.ISupportInitialize)(this.UserImagePic)).EndInit();
+            this.groupBox1.ResumeLayout(false);
+            this.groupBox1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -155,6 +205,10 @@ namespace garticSubmitTool
         private System.Windows.Forms.ColumnHeader columnHeader2;
         private System.Windows.Forms.Button ClearListBtn;
         private System.Windows.Forms.Button AddListBtn;
+        private System.Windows.Forms.PictureBox UserImagePic;
+        private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.Label UserNameLabel;
+        private System.Windows.Forms.Label label2;
     }
 }
 
