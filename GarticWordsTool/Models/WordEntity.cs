@@ -18,7 +18,7 @@ namespace GarticWordsTool.Models
             Code = code;
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             WordEntity? entiy = obj as WordEntity;
 

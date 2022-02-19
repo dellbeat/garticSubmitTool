@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace GarticWordsTool.Models
 {
-    public enum LangauageEnum
+    public enum LanguageEnum
     {
         Portuguese = 1,
         English = 2,

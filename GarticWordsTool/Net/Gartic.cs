@@ -1,9 +1,12 @@
-﻿using System;
+﻿using GarticWordsTool.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text;
+using System.Text.Json;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace GarticWordsTool.Net
@@ -27,18 +30,32 @@ namespace GarticWordsTool.Net
         {
             if (client == null)
             {
-                HttpClientHandler httpClientHandler = new HttpClientHandler()
+                HttpClientHandler zipHandler = new HttpClientHandler()
                 {
-                    Proxy = WebRequest.GetSystemWebProxy(),
-                    UseProxy = true,
+                    AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate,
                 };
-                client = new HttpClient(httpClientHandler);
+                client = new HttpClient();
             }
         }
 
+        /// <summary>
+        /// 检查是否登录
+        /// </summary>
+        /// <returns></returns>
         public async Task<bool> IsLogin()
         {
-            bool loginStatu = false;
+            bool loginStatu = (await GetMainPage(true)).Contains("href=\"/logout\"");
+
+            return loginStatu;
+        }
+
+        /// <summary>
+        /// 获取首页内容
+        /// </summary>
+        /// <param name="usingCookie">是否使用<see cref="Cookie"/>，<see langword="true"/>一般为确认登录状态使用</param>
+        /// <returns></returns>
+        private Task<string> GetMainPage(bool usingCookie = true)
+        {
             HttpRequestMessage loginMessage = new HttpRequestMessage()
             {
                 Method = HttpMethod.Get,
@@ -46,17 +63,38 @@ namespace GarticWordsTool.Net
 
             };
             loginMessage.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.190 Safari/537.36");
-            loginMessage.Headers.Add("Accept-Encoding", "gzip, deflate, br");
+            //不需要额外添加解压头，会对httpclient已经设置的AutomaticDecompression属性产生影响导致无法解压
             loginMessage.Headers.Add("Connection", "keep-alive");
             loginMessage.Headers.Add("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9");
-            loginMessage.Headers.Add("Accept-Encoding", "gzip, deflate, br");
-            loginMessage.Headers.Add("Cookie", Cookie);
+            if (usingCookie)
+            {
+                loginMessage.Headers.Add("Cookie", Cookie);
+            }
 
             HttpResponseMessage responseMessage = client.Send(loginMessage);
 
-            loginStatu =  (await responseMessage.Content.ReadAsStringAsync()).Contains("href=\"/logout\"");
+            return responseMessage.Content.ReadAsStringAsync();
+        }
 
-            return loginStatu;
+        /// <summary>
+        /// 获取语言
+        /// </summary>
+        /// <returns></returns>
+        public async Task<LangauageEntity[]> GetLanauageConfig()
+        {
+            string content = await GetMainPage(false);
+
+            Regex jsonReg = new Regex(@"(?<=""languages"":).+?\](?=,""subjects"")", RegexOptions.Singleline);
+
+            var serializeOptions = new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                WriteIndented = true
+            };
+
+            LangauageEntity[]? entities = JsonSerializer.Deserialize<LangauageEntity[]>(jsonReg.Match(content).Value, serializeOptions);
+
+            return entities;
         }
     }
 }
