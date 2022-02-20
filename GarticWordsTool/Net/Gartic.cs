@@ -96,5 +96,45 @@ namespace GarticWordsTool.Net
 
             return entities;
         }
+
+        /// <summary>
+        /// 获取类别的自定义词汇
+        /// </summary>
+        /// <param name="subject">类别代号</param>
+        /// <param name="language">语种</param>
+        /// <returns></returns>
+        public async Task<List<WordEntity>> GetSubjectCustomWordsList(int subject, int language)
+        {
+            HttpRequestMessage customWordMessage = new HttpRequestMessage()
+            {
+                Method = HttpMethod.Get,
+                RequestUri = new Uri($"https://gartic.io/req/subject?subject={subject}&language={language}"),
+
+            };
+            customWordMessage.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.190 Safari/537.36");
+            customWordMessage.Headers.Add("Connection", "keep-alive");
+            customWordMessage.Headers.Add("Accept", "application/json, text/plain, */*");
+            customWordMessage.Headers.Add("Cookie", Cookie);
+            customWordMessage.Headers.Add("Referer", "https://gartic.io/create");
+
+            HttpResponseMessage responseMessage = client.Send(customWordMessage);
+            string content = await responseMessage.Content.ReadAsStringAsync();
+
+            Regex wordReg = new Regex("(?<=\\[\")[^\"]+");
+            Regex codeReg = new Regex("(?<=,)\\d(?=])");
+
+            MatchCollection wordCol = wordReg.Matches(content);
+            MatchCollection codeCol = codeReg.Matches(content);
+
+            List<WordEntity> wordEntities = new List<WordEntity>();
+
+            for (int i = 0; i < wordCol.Count; i++)
+            {
+                WordEntity entity = new WordEntity(wordCol[i].Value, Convert.ToInt32(codeCol[i].Value));
+                wordEntities.Add(entity);
+            }
+
+            return wordEntities;
+        }
     }
 }
