@@ -102,7 +102,7 @@ namespace GarticWordsTool.Net
         /// </summary>
         /// <param name="subject">类别代号</param>
         /// <param name="language">语种</param>
-        /// <returns></returns>
+        /// <returns>词汇列表</returns>
         public async Task<List<WordEntity>> GetSubjectCustomWordsList(int subject, int language)
         {
             HttpRequestMessage customWordMessage = new HttpRequestMessage()
@@ -135,6 +135,74 @@ namespace GarticWordsTool.Net
             }
 
             return wordEntities;
+        }
+
+        /// <summary>
+        /// 更新指定语种指定类别的词库
+        /// </summary>
+        /// <param name="language">语种代号</param>
+        /// <param name="subject">类别</param>
+        /// <param name="additionalWords">添加的词汇列表</param>
+        /// <param name="removedWords">删除的词汇列表</param>
+        /// <returns>更新状态</returns>
+        public async Task<bool> UpdateWordsAsync(int language, int subject, List<AdditionalWord> additionalWords, List<RemovedWord> removedWords)
+        {
+            string sendStr = "{\"language\":" + language + ",\"subject\":" + subject + ",\"added\":[" + string.Join(",", additionalWords) + "],\"removed\":[" + string.Join(",", removedWords) + "]}";
+
+            StringContent sendContent = new StringContent(sendStr, Encoding.UTF8, "application/json");
+
+            HttpRequestMessage updateMessage = new HttpRequestMessage()
+            {
+                Method = HttpMethod.Post,
+                RequestUri = new Uri("https://gartic.io/req/editSubject"),
+                Content = sendContent,
+            };
+
+            updateMessage.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.190 Safari/537.36");
+            updateMessage.Headers.Add("Connection", "keep-alive");
+            updateMessage.Headers.Add("Accept", "application/json, text/plain, */*");
+            updateMessage.Headers.Add("Cookie", Cookie);
+            updateMessage.Headers.Add("Referer", "https://gartic.io/theme");
+
+            HttpResponseMessage responseMessage = client.Send(updateMessage);
+            string content = await responseMessage.Content.ReadAsStringAsync();
+
+            bool updateStatu = content.Contains("true");
+
+            return updateStatu;
+        }
+
+        /// <summary>
+        /// 删除类别下的自定义词库
+        /// </summary>
+        /// <param name="language">语种代号</param>
+        /// <param name="subject">类别</param>
+        /// <returns>是否删除成功</returns>
+        public async Task<bool> DeleteSubject(int language, int subject)
+        {
+            string sendStr = "{\"language\":" + language + ",\"subject\":" + subject +"}";
+
+            StringContent sendContent = new StringContent(sendStr, Encoding.UTF8, "application/json");
+
+            HttpRequestMessage deleteMessage = new HttpRequestMessage()
+            {
+                Method = HttpMethod.Post,
+                RequestUri = new Uri("https://gartic.io/req/removeSubject"),
+                Content = sendContent,
+            };
+
+            deleteMessage.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.190 Safari/537.36");
+            deleteMessage.Headers.Add("Connection", "keep-alive");
+            deleteMessage.Headers.Add("Accept", "application/json, text/plain, */*");
+            deleteMessage.Headers.Add("Cookie", Cookie);
+            deleteMessage.Headers.Add("Referer", "https://gartic.io/theme");
+
+            HttpResponseMessage responseMessage = client.Send(deleteMessage);
+            string content = await responseMessage.Content.ReadAsStringAsync();
+
+            bool updateStatu = content.Contains("true");
+
+            return updateStatu;
         }
     }
 }
