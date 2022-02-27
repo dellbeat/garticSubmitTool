@@ -13,48 +13,50 @@ namespace GarticWordsTool.Net
 {
     public class Gartic
     {
+        static Gartic()
+        {
+            HttpClientHandler zipHandler = new HttpClientHandler()
+            {
+                AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate,
+            };
+            client = new HttpClient();
+        }
+
         private static HttpClient client;
+
+        private static Regex jsonReg = new Regex(@"(?<=application/json""\>).+?(?=\</script\>)", RegexOptions.Singleline);
 
         private string Cookie { get; set; }
 
         public Gartic(string cookie)
         {
             Cookie = cookie;
-            InitClient();
         }
 
         /// <summary>
-        /// 初始化HttpClient
+        /// 更新为其他Cookie
         /// </summary>
-        private void InitClient()
+        /// <param name="cookie"></param>
+        public void UpdateCookie(string cookie)
         {
-            if (client == null)
-            {
-                HttpClientHandler zipHandler = new HttpClientHandler()
-                {
-                    AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate,
-                };
-                client = new HttpClient();
-            }
+            Cookie = cookie;
         }
 
         /// <summary>
-        /// 检查是否登录
+        /// 检查是否登录,并返回配置
         /// </summary>
         /// <returns></returns>
-        public async Task<bool> IsLogin()
+        public async Task<GarticConfig> GetLoginProfile()
         {
-            bool loginStatu = (await GetMainPage(true)).Contains("href=\"/logout\"");
-
-            return loginStatu;
+            return await GetConfigAsync(true);
         }
 
         /// <summary>
         /// 获取首页内容
         /// </summary>
-        /// <param name="usingCookie">是否使用<see cref="Cookie"/>，<see langword="true"/>一般为确认登录状态使用</param>
+        /// <param name="usingCookie">是否使用<see cref="Cookie"/></param>
         /// <returns></returns>
-        private Task<string> GetMainPage(bool usingCookie = true)
+        private Task<string> GetMainPage(bool usingCookie)
         {
             HttpRequestMessage loginMessage = new HttpRequestMessage()
             {
@@ -77,24 +79,27 @@ namespace GarticWordsTool.Net
         }
 
         /// <summary>
+        /// 获取配置内部方法
+        /// </summary>
+        /// <param name="useCookie">是否使用<see cref="Cookie">Cookie</see></param>
+        /// <returns></returns>
+        private async Task<GarticConfig?> GetConfigAsync(bool useCookie)
+        {
+            string content = await GetMainPage(useCookie);
+            GarticConfig? config = JsonSerializer.Deserialize<GarticConfig>(jsonReg.Match(content).Value);
+
+            return config;
+        }
+
+        /// <summary>
         /// 获取语言
         /// </summary>
         /// <returns></returns>
-        public async Task<LangauageEntity[]> GetLanauageConfig()
+        public async Task<Language[]> GetLanauageConfig()
         {
-            string content = await GetMainPage(false);
+            GarticConfig? config = await GetConfigAsync(false);
 
-            Regex jsonReg = new Regex(@"(?<=""languages"":).+?\](?=,""subjects"")", RegexOptions.Singleline);
-
-            var serializeOptions = new JsonSerializerOptions
-            {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                WriteIndented = true
-            };
-
-            LangauageEntity[]? entities = JsonSerializer.Deserialize<LangauageEntity[]>(jsonReg.Match(content).Value, serializeOptions);
-
-            return entities;
+            return config?.props.data.languages;
         }
 
         /// <summary>
@@ -180,7 +185,7 @@ namespace GarticWordsTool.Net
         /// <returns>是否删除成功</returns>
         public async Task<bool> DeleteSubject(int language, int subject)
         {
-            string sendStr = "{\"language\":" + language + ",\"subject\":" + subject +"}";
+            string sendStr = "{\"language\":" + language + ",\"subject\":" + subject + "}";
 
             StringContent sendContent = new StringContent(sendStr, Encoding.UTF8, "application/json");
 
