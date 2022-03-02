@@ -11,11 +11,12 @@ namespace GarticWordsTool.Models
     /// </summary>
     public class RemovedWord : WordEntity
     {
-        /// <summary>
-        /// 传入<see cref="WordEntity"/>实体即可，因为被删除的单词一定是存在的
-        /// </summary>
-        /// <param name="entity"></param>
         public RemovedWord(WordEntity entity) : base(entity)
+        {
+
+        }
+
+        public RemovedWord(string word, int code = -1) : base(word, code)
         {
 
         }
