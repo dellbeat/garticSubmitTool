@@ -4,17 +4,14 @@ using System.Text.Json.Serialization;
 
 namespace GarticWordsTool.Converter
 {
-    /// <summary>
-    /// <see cref="User.avatar">头像地址</see>转换器，处理未登录时值为数字无法直接反序列化的情况
-    /// </summary>
-    public class AvatarConverter : JsonConverter<string>
+    public class CookieValueConverter : JsonConverter<string>
     {
         public override string? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             string? value = default(string);
             try
             {
-                value = reader.GetString();
+                value = reader.GetString()?.Replace(Environment.NewLine, "");
             }
             catch
             {

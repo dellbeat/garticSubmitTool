@@ -1,6 +1,8 @@
 ﻿using GarticWordsTool.Models;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -49,6 +51,36 @@ namespace GarticWordsTool.Net
         public async Task<GarticConfig> GetLoginProfile()
         {
             return await GetConfigAsync(true);
+        }
+
+        /// <summary>
+        /// 获取登录后的头像
+        /// </summary>
+        /// <returns></returns>
+        public async Task<Bitmap> GetAvatar(string avatarUrl)
+        {
+            Bitmap bitmap = default;
+            HttpRequestMessage message = new HttpRequestMessage()
+            {
+                Method = HttpMethod.Get,
+                RequestUri = new Uri(avatarUrl)
+            };
+            message.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.190 Safari/537.36");
+            message.Headers.Add("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9");
+
+            HttpResponseMessage responseMessage = await client.SendAsync(message);
+
+            try
+            {
+                Stream bitmapStream = await responseMessage.Content.ReadAsStreamAsync();
+                bitmap = new Bitmap(bitmapStream);
+            }
+            catch
+            {
+
+            }
+
+            return bitmap;
         }
 
         /// <summary>
